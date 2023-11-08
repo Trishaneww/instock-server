@@ -32,6 +32,7 @@ app.get('/inventories', async (req, res) => {
     }
 } )
 
+
 app.listen(5050, () => {
   console.log(`running at http://localhost:5050`);
 });
