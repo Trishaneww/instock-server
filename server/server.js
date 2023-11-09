@@ -65,6 +65,16 @@ app.post("/inventories", async (req, res) => {
   }
 });
 
+// get request for a single warehouse's details
+app.get('/warehouses/:id', async (req, res) => {
+  try {
+    const selectedWarehouse = await knex('warehouses').select('*').where({id: req.params.id});
+    res.status(200).send(selectedWarehouse);
+  } catch(err) {
+    res.status(400).send(`Error retrieving Warehouses: ${err}`)
+  }
+});
+
 // Delete a warehouse/:id
 app.delete("/warehouses/:id", async (req, res) => {
   try {
