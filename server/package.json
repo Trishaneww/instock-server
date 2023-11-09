@@ -9,7 +9,11 @@
     "migrate:down": "knex migrate:down",
     "migrate:rollback": "knex migrate:rollback",
     "seed": "knex seed:run",
+<<<<<<< HEAD
     "dev": "nodemon server"
+=======
+    "start": "nodemon server.js"
+>>>>>>> kai/knn12
   },
   "keywords": [],
   "author": "",
