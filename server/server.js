@@ -62,6 +62,17 @@ app.post('/inventories', async (req, res) => {
   }
 })
 
+// get request for a single warehouse's details
+app.get('/warehouses/:id', async (req, res) => {
+  try {
+    const selectedWarehouse = await knex('warehouses').select('*').where({id: req.params.id});
+    res.status(200).send(selectedWarehouse);
+  } catch(err) {
+    res.status(400).send(`Error retrieving Warehouses: ${err}`)
+  }
+});
+
+
 
 app.listen(5050, () => {
   console.log(`running at http://localhost:5050`);
