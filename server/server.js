@@ -64,6 +64,53 @@ app.post("/inventories", async (req, res) => {
     console.log({ message: `Unable to create new Inventory: ${err}` });
   }
 });
+<<<<<<< HEAD
+=======
+
+// Delete a warehouse/:id
+app.delete("/warehouses/:id", async (req, res) => {
+  try {
+    const warehousesDelete = await knex("warehouses")
+      .where({ id: req.params.id })
+      .delete();
+
+    if (warehousesDelete === 0) {
+      return res
+        .status(404)
+        .json({ message: `Warehouse with ID ${req.params.id} not found` });
+    }
+
+    // No Content response
+    res.sendStatus(204);
+  } catch (error) {
+    res.status(500).json({
+      message: `Unable to delete warehouse: ${error}`,
+    });
+  }
+});
+
+// Delete an inventory item
+app.delete("/inventories/:id", async (req, res) => {
+  try {
+    const inventoryDelete = await knex("inventories")
+      .where({ id: req.params.id })
+      .delete();
+
+    if (inventoryDelete === 0) {
+      return res
+        .status(404)
+        .json({ message: `Inventory with ID ${req.params.id} not found` });
+    }
+
+    // No Content response
+    res.sendStatus(204);
+  } catch (error) {
+    res.status(500).json({
+      message: `Unable to delete inventory: ${error}`,
+    });
+  }
+});
+>>>>>>> develop
 
 app.listen(5050, () => {
   console.log(`running at http://localhost:5050`);
