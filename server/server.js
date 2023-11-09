@@ -64,8 +64,6 @@ app.post("/inventories", async (req, res) => {
     console.log({ message: `Unable to create new Inventory: ${err}` });
   }
 });
-<<<<<<< HEAD
-=======
 
 // Delete a warehouse/:id
 app.delete("/warehouses/:id", async (req, res) => {
@@ -110,7 +108,6 @@ app.delete("/inventories/:id", async (req, res) => {
     });
   }
 });
->>>>>>> develop
 
 app.listen(5050, () => {
   console.log(`running at http://localhost:5050`);
