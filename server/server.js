@@ -4,7 +4,7 @@ const app = express();
 const cors = require('cors')
 require("dotenv").config();
 
-
+app.use(express.json())
 app.use(cors());
 
 
@@ -28,9 +28,39 @@ app.get('/inventories', async (req, res) => {
         const data = await knex('inventories');
         res.status(200).send(data);
     } catch(err) {
-        res.status(400).send(`Eroor retreieving Inventories: ${err}`)
+        res.status(400).send(`Error retreieving Inventories: ${err}`)
     }
-} )
+})
+
+app.post('/warehouses', async (req, res) => {
+    try {
+      console.log(req.body)
+      const data = await knex.insert(req.body).into("warehouses");
+      const newWarehouseId = data[0];
+      const createdWarehouse = await knex("warehouses").where({ id: newWarehouseId });
+  
+      // res.status(201).json(createdWarehouse);
+      console.log(createdWarehouse)
+    } catch (err) {
+      res.status(500).send({message: `Unable to create new warehouse: ${err}`});
+      console.log({message: `Unable to create new warehouse: ${err}`});
+    }
+})
+
+app.post('/inventories', async (req, res) => {
+  try {
+    console.log(req.body)
+    const data = await knex.insert(req.body).into("inventories");
+    const newInventoryId = data[0];
+    const createdInventory = await knex("inventories").where({ id: newInventoryId });
+
+    // res.status(201).json(createdWarehouse);
+    console.log(createdInventory)
+  } catch (err) {
+    res.status(500).send({message: `Unable to create new Inventory: ${err}`});
+    console.log({message: `Unable to create new Inventory: ${err}`});
+  }
+})
 
 
 app.listen(5050, () => {
