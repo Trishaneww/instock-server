@@ -2,6 +2,7 @@ const express = require("express");
 const knex = require("knex")(require("./knexfile"));
 const app = express();
 const cors = require("cors");
+// import validation function
 const validation = require("./utils/validation")
 require("dotenv").config();
 
@@ -33,6 +34,8 @@ app.get("/inventories", async (req, res) => {
     }
 });
 
+
+// post request to create new warehouse + vallidation
 app.post("/warehouses", async (req, res) => {
 
   if (!validation.isEmailValid(req.body.contact_email) || !validation.isPhoneValid(req.body.contact_phone) ||!req.body.address
@@ -55,7 +58,7 @@ app.post("/warehouses", async (req, res) => {
   }
 });
 
-
+// post request to create new inventory item + vallidation
 app.post("/inventories", async (req, res) => {
   if (!req.body.category ||!req.body.description || !req.body.item_name || !req.body.quantity || !req.body.status || !req.body.warehouse_id){
       res.send("Invalid Field")
