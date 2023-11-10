@@ -56,8 +56,9 @@ app.post("/warehouses", async (req, res) => {
 
 
 app.post("/inventories", async (req, res) => {
-  if (!req.body.category ||!req.body.description || !req.body.item_name || !req.body.warehouse_quantity || !req.body.status || !req.body.warehouse_id){
+  if (!req.body.category ||!req.body.description || !req.body.item_name || !req.body.quantity || !req.body.status || !req.body.warehouse_id){
       res.send("Invalid Field")
+      console.log("Invalid Field")
   } else {
   try {
     console.log(req.body);
