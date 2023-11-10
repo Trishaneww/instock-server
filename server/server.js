@@ -90,6 +90,7 @@ app.get('/warehouses/:id', async (req, res) => {
   }
 });
 
+
 // Delete a warehouse/:id
 app.delete("/warehouses/:id", async (req, res) => {
   try {
@@ -137,8 +138,7 @@ app.delete("/inventories/:id", async (req, res) => {
 // put request editing of the warehouse details
 app.put('/warehouses/:id', async (req, res) => {
   const updates = req.body;
-  // console.log("id ", "updates", req.params.id, req.body);
-  
+
   try {
     const number = await knex('warehouses').where({id: req.params.id}).update(updates)
 
@@ -155,11 +155,12 @@ app.put('/warehouses/:id', async (req, res) => {
   }
 });
 
+
 // get request for a single inventory item
 app.get("/inventories/:id", async (req, res) => {
   try {
-      const inventoryItem = await knex("inventories").select('*').where({id: req.params.id});
-      res.status(200).send(inventoryItem);
+      const inventoryItems = await knex("inventories").select('*').where({warehouse_id: req.params.id});
+      res.status(200).send(inventoryItems);
   } catch (err) {
       res.status(400).send(`Error retreieving Inventories: ${err}`);
   }
