@@ -2,6 +2,8 @@ const express = require("express");
 const knex = require("knex")(require("./knexfile"));
 const app = express();
 const cors = require("cors");
+// import validation function
+const validation = require("./utils/validation")
 require("dotenv").config();
 
 app.use(express.json());
@@ -32,24 +34,36 @@ app.get("/inventories", async (req, res) => {
     }
 });
 
+
+// post request to create new warehouse + vallidation
 app.post("/warehouses", async (req, res) => {
+
+  if (!validation.isEmailValid(req.body.contact_email) || !validation.isPhoneValid(req.body.contact_phone) ||!req.body.address
+      ||!req.body.city || !req.body.country || !req.body.warehouse_name || !req.body.contact_name || !req.body.contact_position) {
+      res.send("Invalid Field")
+  } else {
     try {
       console.log(req.body);
       const data = await knex.insert(req.body).into("warehouses");
       const newWarehouseId = data[0];
       const createdWarehouse = await knex("warehouses").where({
-      id: newWarehouseId,
-    });
-  
-      // res.status(201).json(createdWarehouse);
+        id: newWarehouseId,
+      });
+
       console.log(createdWarehouse);
     } catch (err) {
       res.status(500).send({ message: `Unable to create new warehouse: ${err}` });
       console.log({ message: `Unable to create new warehouse: ${err}` });
     }
+  }
 });
 
+// post request to create new inventory item + vallidation
 app.post("/inventories", async (req, res) => {
+  if (!req.body.category ||!req.body.description || !req.body.item_name || !req.body.quantity || !req.body.status || !req.body.warehouse_id){
+      res.send("Invalid Field")
+      console.log("Invalid Field")
+  } else {
   try {
     console.log(req.body);
     const data = await knex.insert(req.body).into("inventories");
@@ -58,12 +72,12 @@ app.post("/inventories", async (req, res) => {
       id: newInventoryId,
     });
 
-    // res.status(201).json(createdWarehouse);
     console.log(createdInventory);
   } catch (err) {
     res.status(500).send({ message: `Unable to create new Inventory: ${err}` });
     console.log({ message: `Unable to create new Inventory: ${err}` });
   }
+}
 });
 
 // get request for a single warehouse's details
