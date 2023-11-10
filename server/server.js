@@ -24,10 +24,36 @@ app.get("/warehouses", async (req, res) => {
 // get request for all inventory
 app.get("/inventories", async (req, res) => {
   try {
-    const data = await knex("inventories");
+    const data = await knex("inventories").join(
+      "warehouses",
+      "inventories.warehouse_id",
+      "warehouses.id"
+    );
+
     res.status(200).send(data);
   } catch (err) {
     res.status(400).send(`Error retreieving Inventories: ${err}`);
+  }
+});
+
+app.get("/inventories/:id", async (req, res) => {
+  try {
+    const foundInventoryItem = await knex("inventories")
+      .join("warehouses", "inventories.warehouse_id", "warehouses.id")
+      .where({ "inventories.id": req.params.id });
+
+    if (foundInventoryItem.length === 0) {
+      return res.status(404).json({
+        message: `Inventory Item with ID ${req.params.id} not found`,
+      });
+    }
+
+    const inventoryItemData = foundInventoryItem[0];
+    res.json(inventoryItemData);
+  } catch (error) {
+    res.status(500).json({
+      message: `Unable to retrieve inventory item data for inventory with ID ${req.params.id}`,
+    });
   }
 });
 
@@ -40,7 +66,6 @@ app.post("/warehouses", async (req, res) => {
       id: newWarehouseId,
     });
 
-    // res.status(201).json(createdWarehouse);
     console.log(createdWarehouse);
   } catch (err) {
     res.status(500).send({ message: `Unable to create new warehouse: ${err}` });
@@ -57,7 +82,6 @@ app.post("/inventories", async (req, res) => {
       id: newInventoryId,
     });
 
-    // res.status(201).json(createdWarehouse);
     console.log(createdInventory);
   } catch (err) {
     res.status(500).send({ message: `Unable to create new Inventory: ${err}` });
@@ -100,11 +124,43 @@ app.delete("/inventories/:id", async (req, res) => {
         .json({ message: `Inventory with ID ${req.params.id} not found` });
     }
 
-    // No Content response
     res.sendStatus(204);
   } catch (error) {
     res.status(500).json({
       message: `Unable to delete inventory: ${error}`,
+    });
+  }
+});
+
+// Patch an inventory item
+app.put("/inventories/:id/edit", async (req, res) => {
+  // for (const key in req.body) {
+  //   if (!inputs[key]) {
+  //     return res
+  //       .status(400)
+  //       .json({ message: `Unable to get value for ${key}` });
+  //   }
+  // }
+
+  try {
+    const InventoryUpdate = await knex("inventories")
+      .where({ id: req.params.id })
+      .update(req.body);
+
+    if (InventoryUpdate === 0) {
+      return res.status(404).json({
+        message: `Inventory with ID ${req.params.id} not found`,
+      });
+    }
+
+    const updatedInventory = await knex("inventories").where({
+      id: req.params.id,
+    });
+
+    res.json(updatedInventory[0]);
+  } catch (error) {
+    res.status(500).json({
+      message: `Unable to update Inventory with ID ${req.params.id}: ${error}`,
     });
   }
 });
