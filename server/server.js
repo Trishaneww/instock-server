@@ -144,8 +144,18 @@ app.put('/warehouses/:id', async (req, res) => {
 // get request for a single inventory item
 app.get("/inventories/:id", async (req, res) => {
   try {
-      const inventoryItem = await knex("inventories").select('*').where({id: req.params.id});
+      const inventoryItem = await knex("inventories").where({id: req.params.id});
       res.status(200).send(inventoryItem);
+  } catch (err) {
+      res.status(400).send(`Error retreieving Inventories: ${err}`);
+  }
+});
+
+// get request for a all inventories with of a warehouse id
+app.get("/warehouses/:id/inventories", async (req, res) => {
+  try {
+      const data = await knex("inventories").where({warehouse_id: req.params.id});
+      res.status(200).send(data);
   } catch (err) {
       res.status(400).send(`Error retreieving Inventories: ${err}`);
   }
