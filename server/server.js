@@ -9,27 +9,28 @@ app.use(express.json());
 app.use(cors());
 
 app.get("/", (req, res) => {
-  res.send("DEFAULT");
+    res.send("DEFAULT");
 });
 
 // get request for all warehouses
 app.get("/warehouses", async (req, res) => {
-  try {
-    const data = await knex("warehouses");
-    res.status(200).send(data);
-  } catch (err) {
-    res.status(400).send(`Error retrieving Warehouses: ${err}`);
-  }
-});
+    try {
+      const data = await knex("warehouses");
+      // console.log(data);
+      res.status(200).send(data);
+    } catch (err) {
+      res.status(400).send(`Error retrieving Warehouses: ${err}`);
+    }
+  });
 
 // get request for all inventory
 app.get("/inventories", async (req, res) => {
-  try {
-    const data = await knex("inventories");
-    res.status(200).send(data);
-  } catch (err) {
-    res.status(400).send(`Error retreieving Inventories: ${err}`);
-  }
+    try {
+        const data = await knex("inventories");
+        res.status(200).send(data);
+    } catch (err) {
+        res.status(400).send(`Error retreieving Inventories: ${err}`);
+    }
 });
 
 app.post("/warehouses", async (req, res) => {
@@ -76,6 +77,16 @@ app.post("/inventories", async (req, res) => {
 }
 });
 
+// get request for a single warehouse's details
+app.get('/warehouses/:id', async (req, res) => {
+  try {
+    const selectedWarehouse = await knex('warehouses').select('*').where({id: req.params.id});
+    res.status(200).send(selectedWarehouse);
+  } catch(err) {
+    res.status(404).send(`Error retrieving Warehouses: ${err}`)
+  }
+});
+
 // Delete a warehouse/:id
 app.delete("/warehouses/:id", async (req, res) => {
   try {
@@ -120,7 +131,38 @@ app.delete("/inventories/:id", async (req, res) => {
   }
 });
 
+// put request editing of the warehouse details
+app.put('/warehouses/:id', async (req, res) => {
+  const updates = req.body;
+  // console.log("id ", "updates", req.params.id, req.body);
+  
+  try {
+    const number = await knex('warehouses').where({id: req.params.id}).update(updates)
 
+    if (number) {
+      const updatedwarehouse = await knex('warehouses').where({id: number});
+      res.status(200).json(updatedwarehouse);
+    } else {
+      console.log("error updating ");
+      res.status(404).json({message: `Warehouse ID: ${req.params.id} doesn't exist`});
+    }
+
+  } catch (err) {
+    res.status(500).json({message: "Error updating new warehouse" , error: err})
+  }
+});
+
+// get request for a single inventory item
+app.get("/inventories/:id", async (req, res) => {
+  try {
+      const inventoryItem = await knex("inventories").select('*').where({id: req.params.id});
+      res.status(200).send(inventoryItem);
+  } catch (err) {
+      res.status(400).send(`Error retreieving Inventories: ${err}`);
+  }
+});
+
+ 
 app.listen(5050, () => {
-  console.log(`running at http://localhost:5050`)
+  console.log(`running at http://localhost:5050`);
 });
