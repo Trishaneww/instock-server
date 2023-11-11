@@ -39,26 +39,26 @@ app.get("/inventories", async (req, res) => {
   }
 });
 
-app.get("/inventories/:id", async (req, res) => {
-  try {
-    const foundInventoryItem = await knex("inventories")
-      .join("warehouses", "inventories.warehouse_id", "warehouses.id")
-      .where({ "inventories.id": req.params.id });
+// app.get("/inventories/:id", async (req, res) => {
+//   try {
+//     const foundInventoryItem = await knex("inventories")
+//       .join("warehouses", "inventories.warehouse_id", "warehouses.id")
+//       .where({ "inventories.id": req.params.id });
 
-    if (foundInventoryItem.length === 0) {
-      return res.status(404).json({
-        message: `Inventory Item with ID ${req.params.id} not found`,
-      });
-    }
+//     if (foundInventoryItem.length === 0) {
+//       return res.status(404).json({
+//         message: `Inventory Item with ID ${req.params.id} not found`,
+//       });
+//     }
 
-    const inventoryItemData = foundInventoryItem[0];
-    res.json(inventoryItemData);
-  } catch (error) {
-    res.status(500).json({
-      message: `Unable to retrieve inventory item data for inventory with ID ${req.params.id}`,
-    });
-  }
-});
+//     const inventoryItemData = foundInventoryItem[0];
+//     res.json(inventoryItemData);
+//   } catch (error) {
+//     res.status(500).json({
+//       message: `Unable to retrieve inventory item data for inventory with ID ${req.params.id}`,
+//     });
+//   }
+// });
 
 app.post("/warehouses", async (req, res) => {
   if (
@@ -213,6 +213,7 @@ app.get("/inventories/:id", async (req, res) => {
     res.status(400).send(`Error retreieving Inventories: ${err}`);
   }
 });
+
 
 app.listen(5050, () => {
   console.log(`running at http://localhost:5050`);
