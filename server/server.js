@@ -18,26 +18,38 @@ app.get("/warehouses", async (req, res) => {
   try {
     const data = await knex("warehouses");
     // console.log(data);
-    res.status(200).send(data);
+    res.status(200).json(data);
   } catch (err) {
     res.status(400).send(`Error retrieving Warehouses: ${err}`);
   }
 });
 
 // get request for all inventory
+// app.get("/inventories", async (req, res) => {
+//   try {
+//     const data = await knex("inventories").join(
+//       "warehouses",
+//       "inventories.warehouse_id",
+//       "warehouses.id"
+//     );
+
+//     res.status(200).send(data);
+//   } catch (err) {
+//     res.status(400).send(`Error retreieving Inventories: ${err}`);
+//   }
+// });
+
 app.get("/inventories", async (req, res) => {
   try {
-    const data = await knex("inventories").join(
-      "warehouses",
-      "inventories.warehouse_id",
-      "warehouses.id"
-    );
+    const data = await knex("inventories");
 
-    res.status(200).send(data);
+    res.status(200).json(data);
   } catch (err) {
-    res.status(400).send(`Error retreieving Inventories: ${err}`);
+    res.status(400).json(`Error retreieving Inventories: ${err}`);
   }
 });
+
+
 
 // app.get("/inventories/:id", async (req, res) => {
 //   try {
@@ -205,12 +217,25 @@ app.put("/warehouses/:id", async (req, res) => {
 
 
 // get request for a single inventory item
+// app.get("/inventories/:id", async (req, res) => {
+//   try {
+//       const inventoryItems = await knex("inventories").select('*').where({id: req.params.id});
+//       res.status(200).send(inventoryItems);
+//   } catch (err) {
+//     res.status(400).send(`Error retreieving Inventories: ${err}`);
+//   }
+// });
+
+
+// get request for a single inventory item with warehousename joined
 app.get("/inventories/:id", async (req, res) => {
   try {
-      const inventoryItems = await knex("inventories").select('*').where({warehouse_id: req.params.id});
-      res.status(200).send(inventoryItems);
+    const data = await knex('inventories')
+    .select('inventories.id as id', 'inventories.*', 'warehouses.id as warehouse_id', 'warehouses.warehouse_name')
+    .join('warehouses', 'inventories.warehouse_id', '=', 'warehouses.id')
+    res.status(200).json(data);
   } catch (err) {
-    res.status(400).send(`Error retreieving Inventories: ${err}`);
+    res.status(404).send(`Error retreieving Inventories: ${err}`);
   }
 });
 
