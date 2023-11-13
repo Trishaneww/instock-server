@@ -18,47 +18,21 @@ app.get("/warehouses", async (req, res) => {
   try {
     const data = await knex("warehouses");
     // console.log(data);
-    res.status(200).send(data);
+    res.status(200).json(data);
   } catch (err) {
     res.status(400).send(`Error retrieving Warehouses: ${err}`);
   }
 });
 
-// get request for all inventory
 app.get("/inventories", async (req, res) => {
   try {
-    const data = await knex("inventories").join(
-      "warehouses",
-      "inventories.warehouse_id",
-      "warehouses.id"
-    );
+    const data = await knex("inventories");
 
-    res.status(200).send(data);
+    res.status(200).json(data);
   } catch (err) {
-    res.status(400).send(`Error retreieving Inventories: ${err}`);
+    res.status(400).json(`Error retreieving Inventories: ${err}`);
   }
 });
-
-// app.get("/inventories/:id", async (req, res) => {
-//   try {
-//     const foundInventoryItem = await knex("inventories")
-//       .join("warehouses", "inventories.warehouse_id", "warehouses.id")
-//       .where({ "inventories.id": req.params.id });
-
-//     if (foundInventoryItem.length === 0) {
-//       return res.status(404).json({
-//         message: `Inventory Item with ID ${req.params.id} not found`,
-//       });
-//     }
-
-//     const inventoryItemData = foundInventoryItem[0];
-//     res.json(inventoryItemData);
-//   } catch (error) {
-//     res.status(500).json({
-//       message: `Unable to retrieve inventory item data for inventory with ID ${req.params.id}`,
-//     });
-//   }
-// });
 
 app.post("/warehouses", async (req, res) => {
   if (
@@ -134,6 +108,15 @@ app.get("/warehouses/:id", async (req, res) => {
   }
 });
 
+// get request for a all inventories with of a warehouse id
+app.get("/warehouses/:id/inventories", async (req, res) => {
+  try {
+      const data = await knex("inventories").where({warehouse_id: req.params.id});
+      res.status(200).send(data);
+  } catch (err) {
+      res.status(400).send(`Error retreieving Inventories: ${err}`);
+  }
+});
 
 // Delete a warehouse/:id
 app.delete("/warehouses/:id", async (req, res) => {
@@ -204,13 +187,16 @@ app.put("/warehouses/:id", async (req, res) => {
 });
 
 
-// get request for a single inventory item
+// get request for a single inventory item 
 app.get("/inventories/:id", async (req, res) => {
   try {
-      const inventoryItems = await knex("inventories").select('*').where({warehouse_id: req.params.id});
-      res.status(200).send(inventoryItems);
+    const data = await knex('inventories')
+    .select('inventories.id as id', 'inventories.*', 'warehouses.id as warehouse_id', 'warehouses.warehouse_name')
+    .join('warehouses', 'inventories.warehouse_id', '=', 'warehouses.id')
+    .where({'inventories.id': req.params.id});
+    res.status(200).json(data);
   } catch (err) {
-    res.status(400).send(`Error retreieving Inventories: ${err}`);
+    res.status(404).send(`Error retreieving Inventories: ${err}`);
   }
 });
 
