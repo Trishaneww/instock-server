@@ -24,37 +24,43 @@ app.get("/warehouses", async (req, res) => {
 
 app.get("/inventories", async (req, res) => {
   try {
-    const data = await knex("inventories").join(
-      "warehouses",
-      "inventories.warehouse_id",
-      "warehouses.id"
-    );
+    const data = await knex("inventories")
+      .join("warehouses", "inventories.warehouse_id", "=", "warehouses.id")
+      .select(
+        "inventories.id",
+        "inventories.item_name",
+        "inventories.category",
+        "inventories.status",
+        "inventories.quantity",
+        "warehouses.warehouse_name"
+      );
+    console.log(data[0], data[1]);
     res.status(200).json(data);
   } catch (err) {
     res.status(400).json(`Error retreieving Inventories: ${err}`);
   }
 });
 
-// app.get("/inventories/:id", async (req, res) => {
-//   try {
-//     const foundInventoryItem = await knex("inventories")
-//       .join("warehouses", "inventories.warehouse_id", "warehouses.id")
-//       .where({ "inventories.id": req.params.id });
+app.get("/inventories/:id", async (req, res) => {
+  try {
+    const foundInventoryItem = await knex("inventories")
+      .join("warehouses", "inventories.warehouse_id", "warehouses.id")
+      .where({ "inventories.id": req.params.id });
 
-//     if (foundInventoryItem.length === 0) {
-//       return res.status(404).json({
-//         message: `Inventory Item with ID ${req.params.id} not found`,
-//       });
-//     }
+    if (foundInventoryItem.length === 0) {
+      return res.status(404).json({
+        message: `Inventory Item with ID ${req.params.id} not found`,
+      });
+    }
 
-//     const inventoryItemData = foundInventoryItem[0];
-//     res.json(inventoryItemData);
-//   } catch (error) {
-//     res.status(500).json({
-//       message: `Unable to retrieve inventory item data for inventory with ID ${req.params.id}`,
-//     });
-//   }
-// });
+    const inventoryItemData = foundInventoryItem[0];
+    res.json(inventoryItemData);
+  } catch (error) {
+    res.status(500).json({
+      message: `Unable to retrieve inventory item data for inventory with ID ${req.params.id}`,
+    });
+  }
+});
 
 app.post("/warehouses", async (req, res) => {
   if (
