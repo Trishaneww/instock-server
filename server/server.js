@@ -24,11 +24,17 @@ app.get("/warehouses", async (req, res) => {
 
 app.get("/inventories", async (req, res) => {
   try {
-    const data = await knex("inventories").join(
-      "warehouses",
-      "inventories.warehouse_id",
-      "warehouses.id"
-    );
+    const data = await knex("inventories")
+      .join("warehouses", "inventories.warehouse_id", "=", "warehouses.id")
+      .select(
+        "inventories.id",
+        "inventories.item_name",
+        "inventories.category",
+        "inventories.status",
+        "inventories.quantity",
+        "warehouses.warehouse_name"
+      );
+    console.log(data[0], data[1]);
     res.status(200).json(data);
   } catch (err) {
     res.status(400).json(`Error retreieving Inventories: ${err}`);
