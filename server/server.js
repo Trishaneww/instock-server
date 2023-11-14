@@ -6,128 +6,19 @@ const cors = require("cors");
 const validation = require("./utils/validation");
 require("dotenv").config();
 
+const inventoryRoute = require('./routes/Inventory');
+const warehouseRoute = require('./routes/Warehouse');
+
+
 app.use(express.json());
 app.use(cors());
 
-app.get("/", (req, res) => {
+app.get("/", (_req, res) => {
   res.send("DEFAULT");
 });
 
-// get request for all warehouses
-app.get("/warehouses", async (req, res) => {
-  try {
-    const data = await knex("warehouses");
-    // console.log(data);
-    res.status(200).json(data);
-  } catch (err) {
-    res.status(400).send(`Error retrieving Warehouses: ${err}`);
-  }
-});
-
-app.get("/inventories", async (req, res) => {
-  try {
-    const data = await knex("inventories");
-
-    res.status(200).json(data);
-  } catch (err) {
-    res.status(400).json(`Error retreieving Inventories: ${err}`);
-  }
-});
-
-app.get("/inventories/:id", async (req, res) => {
-  try {
-    const foundInventoryItem = await knex("inventories")
-      .join("warehouses", "inventories.warehouse_id", "warehouses.id")
-      .where({ "inventories.id": req.params.id });
-
-    if (foundInventoryItem.length === 0) {
-      return res.status(404).json({
-        message: `Inventory Item with ID ${req.params.id} not found`,
-      });
-    }
-
-    const inventoryItemData = foundInventoryItem[0];
-    res.json(inventoryItemData);
-  } catch (error) {
-    res.status(500).json({
-      message: `Unable to retrieve inventory item data for inventory with ID ${req.params.id}`,
-    });
-  }
-});
-
-app.post("/warehouses", async (req, res) => {
-  if (
-    !validation.isEmailValid(req.body.contact_email) ||
-    !validation.isPhoneValid(req.body.contact_phone) ||
-    !req.body.address ||
-    !req.body.city ||
-    !req.body.country ||
-    !req.body.warehouse_name ||
-    !req.body.contact_name ||
-    !req.body.contact_position
-  ) {
-    res.send("Invalid Field");
-  } else {
-    try {
-      console.log(req.body);
-      const data = await knex.insert(req.body).into("warehouses");
-      const newWarehouseId = data[0];
-      const createdWarehouse = await knex("warehouses").where({
-        id: newWarehouseId,
-      });
-
-      console.log(createdWarehouse);
-    } catch (err) {
-      res
-        .status(500)
-        .send({ message: `Unable to create new warehouse: ${err}` });
-      console.log({ message: `Unable to create new warehouse: ${err}` });
-    }
-  }
-});
-
-// post request to create new inventory item + vallidation
-app.post("/inventories", async (req, res) => {
-  if (
-    !req.body.category ||
-    !req.body.description ||
-    !req.body.item_name ||
-    !req.body.quantity ||
-    !req.body.status ||
-    !req.body.warehouse_id
-  ) {
-    res.send("Invalid Field");
-    console.log("Invalid Field");
-  } else {
-    try {
-      console.log(req.body);
-      const data = await knex.insert(req.body).into("inventories");
-      const newInventoryId = data[0];
-      const createdInventory = await knex("inventories").where({
-        id: newInventoryId,
-      });
-
-      console.log(createdInventory);
-    } catch (err) {
-      res
-        .status(500)
-        .send({ message: `Unable to create new Inventory: ${err}` });
-      console.log({ message: `Unable to create new Inventory: ${err}` });
-    }
-  }
-});
-
-// get request for a single warehouse's details
-app.get("/warehouses/:id", async (req, res) => {
-  try {
-    const selectedWarehouse = await knex("warehouses")
-      .select("*")
-      .where({ id: req.params.id });
-    res.status(200).send(selectedWarehouse);
-  } catch (err) {
-    res.status(404).send(`Error retrieving Warehouses: ${err}`);
-  }
-});
+app.use("/warehouses", warehouseRoute);
+app.use("/inventories", inventoryRoute);
 
 // get request for a all inventories with of a warehouse id
 app.get("/warehouses/:id/inventories", async (req, res) => {
@@ -138,6 +29,17 @@ app.get("/warehouses/:id/inventories", async (req, res) => {
     res.status(200).send(data);
   } catch (err) {
     res.status(400).send(`Error retreieving Inventories: ${err}`);
+  }
+});
+
+app.get("/warehouses/:id", async (req, res) => {
+  try {
+    const selectedWarehouse = await knex("warehouses")
+      .select("*")
+      .where({ id: req.params.id });
+    res.status(200).json(selectedWarehouse);
+  } catch (err) {
+    res.status(404).json(`Error retrieving Warehouses: ${err}`);
   }
 });
 
